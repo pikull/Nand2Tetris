@@ -1,7 +1,7 @@
 # Nand2Tetris
 
-These are my projects for Nand2Tetris
-Nand2Tetris website: https://www.nand2tetris.org/
+These are my projects for Nand2Tetris<br>
+Nand2Tetris website: https://www.nand2tetris.org/<br>
 
 - Project 0: Introduction
 - Project 1: Boolean Logic
