@@ -1,0 +1,83 @@
+class Player {
+    // position
+    field int x, y;
+
+    // size
+    field int size;
+
+    // runner or "it" (tag game)
+    field boolean runner;
+
+    // constructor
+    constructor Player new(int x0, int y0, int s, boolean run) {
+        let x = x0;
+        let y = y0;
+        let size = s;
+        let runner = run;
+
+        return this;
+    }
+
+    // getters
+    method int getx() { return x; }
+    method int gety() { return y; }
+    method int gets() { return size; }
+
+    // change position fields
+    method void move(int dx, int dy) {
+        let x = x + dx;
+        let y = y + dy;
+
+        // check for screen borders
+        if (x < 0) { let x = 0; }
+        if (x + size > 511) { let x = 511 - size; }
+        if (y < 0) { let y = 0; }
+        if (y + size > 255) {let y = 255 - size; }
+
+        return;
+    }
+
+    // draw the player's box
+    method void draw() {
+        // outer rectangle
+        do Screen.setColor(true);
+        do Screen.drawRectangle(x, y, x + size, y + size);
+
+        // inner rectangle for chaser
+        if (~runner) {
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x + 2, y + 2, x + size - 2, y + size - 2);
+        }
+
+        return;
+    }
+
+    // erase the player's box
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawRectangle(x, y, x + size, y + size);
+
+        return;
+    }
+
+    // did this player collide with other player
+    method boolean collision (Player p) {
+        var bool top, bottom, left, right;
+        let top =    (y < (p.gety() + p.gets())); // this.up    boundary
+        let bottom = ((y + size) > p.gety());     // this.down  boundary
+        let left =   (x < (p.getx() + p.gets())); // this.left  boundary
+        let right =  ((x + size) > p.getx());     // this.right boundary
+
+        if (top) {
+            if (bottom) {
+                if (left) {
+                    if (right) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+}

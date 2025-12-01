@@ -1,0 +1,123 @@
+class Game {
+    // both players
+    static Player runner;
+    static Player chaser;
+
+    // score of runner
+    static int score;
+
+
+    // startup screen
+    function void start() {
+        var boolean start;
+        var int k;
+
+        let start = false;
+
+        do Screen.clearScreen();
+
+        do Output.moveCursor(9, 8);
+        do Output.printString("Welcome to tag.");
+
+        do Output.moveCursor(11, 8);
+        do Output.printString("One player moves with WASD, another with arrows.");
+
+        do Output.moveCursor(12, 8);
+        do Output.printString("That's all. Have fun!");
+
+        do Output.moveCursor(14, 8);
+        do Output.printString("Press any key to start. Press q anytime to quit.");
+
+        while (~start) {
+            let k = Keyboard.keyPressed();
+            if (~(k = 0)) {
+                let start = true;
+            }
+        }
+
+        return;
+    }
+
+
+    // main game loop
+    function void run() {
+
+        var boolean done;
+
+        var int dx, dy;
+
+        var int k;
+
+        let runner = Player.new(50, 50, 18, true);
+        let chaser = Player.new(150, 100, 18, false);
+
+        let score = 0;
+
+        let done = false;
+
+        do Screen.clearScreen();
+
+        // initally display both players
+        do runner.draw();
+        do chaser.draw();
+
+        while (~done) {
+            // increment score
+            let score = score + 1;
+
+            // read keyboard for chaser = arrow keys
+            let dx = 0;
+            let dy = 0;
+
+            let k = Keyboard.keyPressed();
+            if (k = 131) { let dy = -4; } // up
+            if (k = 133) { let dy = 4; }  // down
+            if (k = 130) { let dx = -4; } // left
+            if (k = 132) { let dx = 4; }  // right
+
+            if (k = 81) { let done = true; } // quit if q pressed
+
+            // if a key was pressed: erase, move, redraw chaser
+            if (~(k = 0)) {
+                do chaser.erase();
+                do chaser.move(dx, dy);
+                do chaser.draw();
+            }
+
+            // read keyboard for runner = wasd
+            let dx = 0;
+            let dy = 0;
+
+            let k = Keyboard.keyPressed();
+            if (k = 87) { let dy = -4; }  // W
+            if (k = 65) { let dx = -4; }  // A
+            if (k = 83) { let dy = 4; }   // S
+            if (k = 68) { let dx = 4; }   // D
+
+            if (k = 81) { let done = true; } // quit if q pressed
+
+            // if a key was pressed: erase, move, redraw runner
+            if (~(k = 0)) {
+                do runner.erase();
+                do runner.move(dx, dy);
+                do runner.draw();
+            }
+
+            // small delay
+            do Sys.wait(6);
+
+            // check for collision
+            if (runner.collision(chaser)) { let done = true; }
+        }
+
+        // display score when game over
+        do Screen.clearScreen();
+        do Output.moveCursor(10, 10);
+        do Output.printString("Score: ");
+        do Output.printInt(score);
+
+        do Sys.wait(60);
+
+        return;
+    }
+}
