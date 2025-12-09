@@ -1,6 +1,21 @@
 #include "CompilationEngine.h"
 #include <iostream>
 
+const std::unordered_map<KeywordType, std::string> CompilationEngine::keywordToString = {
+    {K_CLASS, "class"}, {K_METHOD, "method"}, {K_FUNCTION, "function"},
+    {K_CONSTRUCTOR, "constructor"}, {K_INT, "int"}, {K_BOOLEAN, "boolean"},
+    {K_CHAR, "char"}, {K_VOID, "void"}, {K_VAR, "var"}, {K_STATIC, "static"},
+    {K_FIELD, "field"}, {K_LET, "let"}, {K_DO, "do"}, {K_IF, "if"},
+    {K_ELSE, "else"}, {K_WHILE, "while"}, {K_RETURN, "return"},
+    {K_TRUE, "true"}, {K_FALSE, "false"}, {K_NULL, "null"}, {K_THIS, "this"}
+};
+const std::unordered_map<char, std::string> CompilationEngine::symbolTable = {
+    {'<',  "&lt;"},
+    {'>',  "&gt;"},
+    {'&',  "&amp;"},
+    {'"',  "&quot;"}
+};
+
 CompilationEngine::CompilationEngine(JackTokenizer* tokenizer, const std::string& outputName)
     : tokenizer(tokenizer), indentLevel(0) {
     outFile.open(outputName);
@@ -29,40 +44,19 @@ void CompilationEngine::writeCurrentToken() {
         case KEYWORD: {
             std::string kwStr;
             KeywordType k = tokenizer->keyword();
-            switch(k) {
-                case K_CLASS: kwStr = "class"; break;
-                case K_METHOD: kwStr = "method"; break;
-                case K_FUNCTION: kwStr = "function"; break;
-                case K_CONSTRUCTOR: kwStr = "constructor"; break;
-                case K_INT: kwStr = "int"; break;
-                case K_BOOLEAN: kwStr = "boolean"; break;
-                case K_CHAR: kwStr = "char"; break;
-                case K_VOID: kwStr = "void"; break;
-                case K_VAR: kwStr = "var"; break;
-                case K_STATIC: kwStr = "static"; break;
-                case K_FIELD: kwStr = "field"; break;
-                case K_LET: kwStr = "let"; break;
-                case K_DO: kwStr = "do"; break;
-                case K_IF: kwStr = "if"; break;
-                case K_ELSE: kwStr = "else"; break;
-                case K_WHILE: kwStr = "while"; break;
-                case K_RETURN: kwStr = "return"; break;
-                case K_TRUE: kwStr = "true"; break;
-                case K_FALSE: kwStr = "false"; break;
-                case K_NULL: kwStr = "null"; break;
-                case K_THIS: kwStr = "this"; break;
-            }
+            auto it = keywordToString.find(k);
+            const std::string& kwstr = (it != keywordToString.end()) ? it->second : "";
             outFile << "<keyword> " << kwStr << " </keyword>\n";
             break;
         }
         case SYMBOL: {
             char sym = tokenizer->symbol();
             outFile << "<symbol> ";
-            if (sym == '<') outFile << "&lt;";
-            else if (sym == '>') outFile << "&gt;";
-            else if (sym == '&') outFile << "&amp;";
-            else if (sym == '"') outFile << "&quot;";
-            else outFile << sym;
+            auto it = symbolTable.find(sym);
+            if (it != symbolTable.end())
+            outFile << it->second;
+            else
+                outFile << sym;
             outFile << " </symbol>\n";
             break;
         }
@@ -79,7 +73,6 @@ void CompilationEngine::writeCurrentToken() {
 }
 
 void CompilationEngine::process(const std::string& str) {
-    // In a strict parser, we would verify tokenizer->identifier() == str here
     writeCurrentToken();
     if (tokenizer->hasMoreTokens()) tokenizer->advance();
 }
